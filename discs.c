@@ -40,7 +40,7 @@ double distance(const double *a, const double *b)
 	      (b[1] - a[1]) * (b[1] - a[1]));
 }
 
-#define DIAMETER 10.0
+#define RADIUS 5.0
 
 double errorf(unsigned n, const double *pts, double *grad,
 	      void *data)
@@ -62,8 +62,8 @@ double errorf(unsigned n, const double *pts, double *grad,
 	if(i!=j) {
 	  double d = distance(&setup->scratch[2*i],
 			      &setup->scratch[2*j]);
-	  d /= DIAMETER;
-	  if(d<=1.0)
+	  d /= RADIUS;
+	  //if(d<=1.0)
 	    error += (1.0/d) * (1.0/d);
 	}
   }
@@ -73,12 +73,12 @@ double errorf(unsigned n, const double *pts, double *grad,
 
 int main(int argc, char *argv[])
 {
-  int N = 300;
+  int N = 50;
 
   double *starts = (double *)malloc(sizeof(double)*N*2);
   double *stops = (double *)malloc(sizeof(double)*N*2);
 
-  srand(1);
+  srand(2);
   nlopt_srand(1);
 
   double scaling = 100.0;
@@ -89,6 +89,15 @@ int main(int argc, char *argv[])
     stops[2*i+1]  = scaling * randd();
   }
 
+  double hs = scaling / 2.0;
+  for(int i=0; i<N; i++) {
+    double theta = ((double)i)/N * 2 * 3.141592;
+    starts[2*i+0] = hs * cos(theta) + hs;
+    starts[2*i+1] = hs * sin(theta) + hs;
+    stops[2*i+0]  = hs * cos(theta + 3.141592) + hs;
+    stops[2*i+1]  = hs * sin(theta + 3.141592) + hs;
+  }
+  
   struct timeval start, stop;
   
   double *guesses = (double *)malloc(sizeof(double)*N*2);
@@ -105,7 +114,7 @@ int main(int argc, char *argv[])
   setup->N = N;
   setup->starts = starts;
   setup->stops = stops;
-  setup->steps = 5;
+  setup->steps = 50;
   setup->scratch = (double *)malloc(sizeof(double)*N*2);
 
   nlopt_result res;
@@ -146,7 +155,7 @@ int main(int argc, char *argv[])
   res = nlopt_optimize(local, guesses, &final_error);
   gettimeofday(&stop, NULL);
 
-  printf("final: %f\n", final_error);
+  fprintf(stderr, "final: %f\n", final_error);
 
   for(int i=0; i<N; i++) {
     printf("%f %f %f %f %f %f\n",

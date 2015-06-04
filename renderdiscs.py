@@ -19,17 +19,17 @@ starts, mids, stops = a, b, c
 
 radius, LB, UB, SCALING = map(float, sys.argv[1:])
 
-for idx in range(0, 301):
-    im = Image.new("RGB", (SCALING*int(UB-LB), SCALING*int(UB-LB)), "white")
+for idx in range(0, 201):
+    im = Image.new("RGB", map(int, (SCALING*(UB-LB), SCALING*(UB-LB))), "white")
     draw = ImageDraw.Draw(im)
-    t = idx / 300.0
+    t = idx / 200.0
     for i in range(0, len(starts)):
         start = starts[i]
-        mid = mids[i*2:i*2+2]
+        mid = mids[i]
         stop = stops[i]
 
         (x,y) = quadbezier(start, mid, stop, t)
-        draw.ellipse( map(lambda x: SCALING*x, (x-0.5-LB, y-0.5-LB, x+0.5-LB, y+0.5-LB)), 'red' )
+        draw.ellipse( map(lambda x: SCALING*x, (x-radius-LB, y-radius-LB, x+radius-LB, y+radius-LB)), 'red' )
 
     del draw
     im.save("%03i.png" % (idx,))
