@@ -58,14 +58,12 @@ double errorf(unsigned n, const double *pts, double *grad,
 		 &setup->scratch[2*i]);
 
     for(int i=0; i<setup->N; i++)
-      for(int j=0; j<setup->N; j++)
-	if(i!=j) {
-	  double d = distance(&setup->scratch[2*i],
-			      &setup->scratch[2*j]);
-	  d /= RADIUS;
-	  //if(d<=1.0)
-	    error += (1.0/d) * (1.0/d);
-	}
+      for(int j=i+1; j<setup->N; j++) {
+	double d = distance(&setup->scratch[2*i],
+			    &setup->scratch[2*j]);
+	d /= RADIUS;
+	error += (1.0/d) * (1.0/d);
+      }
   }
 
   return error / setup->steps;
@@ -73,7 +71,7 @@ double errorf(unsigned n, const double *pts, double *grad,
 
 int main(int argc, char *argv[])
 {
-  int N = 50;
+  int N = 12;
 
   double *starts = (double *)malloc(sizeof(double)*N*2);
   double *stops = (double *)malloc(sizeof(double)*N*2);
